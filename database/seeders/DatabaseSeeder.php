@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             FormulaDefaultSeeder::class,
             OptionSeeder::class,
             FormulaOptionsSeeder::class,
+            CivilitySeeder::class,
         ]);
     }
 }

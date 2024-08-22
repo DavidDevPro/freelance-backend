@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\CivilityController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FormulaController;
@@ -16,9 +17,12 @@ use App\Http\Controllers\TestimonialController;
 |
 */
 
+// Routes pour le formulaire de contact
 Route::post('/contact', [ContactController::class, 'sendEmail']);
 
 // Routes pour les testimonials
 Route::apiResource('testimonials', TestimonialController::class);
 // Routes pour les formules
 Route::apiResource('formulas', FormulaController::class);
+// Routes pour les civilités
+Route::apiResource('civilities', CivilityController::class);
