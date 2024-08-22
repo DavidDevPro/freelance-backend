@@ -4,6 +4,9 @@ use App\Http\Controllers\CivilityController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FormulaController;
+use App\Http\Controllers\ProposalController;
+use App\Http\Controllers\ProposalRequestController;
+use App\Http\Controllers\TemporaryFileController;
 use App\Http\Controllers\TestimonialController;
 
 /*
@@ -26,3 +29,10 @@ Route::apiResource('testimonials', TestimonialController::class);
 Route::apiResource('formulas', FormulaController::class);
 // Routes pour les civilités
 Route::apiResource('civilities', CivilityController::class);
+// Routes pour gerer les documents de devis personnalisés (temporaire)
+Route::post('/proposal-request/temporary-upload', [TemporaryFileController::class, 'store']);
+// Routes pour les clients qui font une demande de devis
+Route::post('/proposal-request', [ProposalRequestController::class, 'store']);
+
+// Routes pour la gestion des devis par les administrateurs
+Route::apiResource('proposals', ProposalController::class);

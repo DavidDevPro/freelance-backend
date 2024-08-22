@@ -26,7 +26,10 @@ class FormulaController extends Controller
                 'description' => $formula->description,
                 'features' => $groupedFeatures->values()->toArray(),
                 'options' => $formula->options->map(function ($option) {
-                    return $option->name . ($option->description ? ' : ' . $option->description : '');
+                    return [
+                        'name' => $option->name,
+                        'description' => $option->description,
+                    ];
                 })->toArray(),
                 'isMostPopular' => $formula->popular,
             ];
