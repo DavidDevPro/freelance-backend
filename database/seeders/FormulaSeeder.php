@@ -37,6 +37,14 @@ class FormulaSeeder extends Seeder
                 'popular' => false,
                 'active' => true,
             ],
+            [
+                'idFormula' => 4,
+                'name' => 'Prendre un rendez-vous',
+                'description' => '',
+                'basePrice' => 0.00,
+                'popular' => false,
+                'active' => true,
+            ],
         ];
 
         foreach ($formulas as $formula) {
