@@ -13,34 +13,37 @@ class FormulaDefaultSeeder extends Seeder
     public function run(): void
     {
         $formulaDefaults = [
-            ['idFormulaDefault' => 1, 'idDefaultElement' => 1, 'idFormula' => 1],
-            ['idFormulaDefault' => 2, 'idDefaultElement' => 2, 'idFormula' => 2],
-            ['idFormulaDefault' => 3, 'idDefaultElement' => 2, 'idFormula' => 3],
-            ['idFormulaDefault' => 4, 'idDefaultElement' => 3, 'idFormula' => 1],
-            ['idFormulaDefault' => 5, 'idDefaultElement' => 4, 'idFormula' => 2],
-            ['idFormulaDefault' => 6, 'idDefaultElement' => 5, 'idFormula' => 3],
-            ['idFormulaDefault' => 7, 'idDefaultElement' => 6, 'idFormula' => 1],
-            ['idFormulaDefault' => 8, 'idDefaultElement' => 7, 'idFormula' => 2],
-            ['idFormulaDefault' => 9, 'idDefaultElement' => 7, 'idFormula' => 3],
-            ['idFormulaDefault' => 10, 'idDefaultElement' => 8, 'idFormula' => 1],
-            ['idFormulaDefault' => 11, 'idDefaultElement' => 9, 'idFormula' => 2],
-            ['idFormulaDefault' => 12, 'idDefaultElement' => 10, 'idFormula' => 3],
-            ['idFormulaDefault' => 13, 'idDefaultElement' => 11, 'idFormula' => 1],
-            ['idFormulaDefault' => 14, 'idDefaultElement' => 12, 'idFormula' => 2],
-            ['idFormulaDefault' => 15, 'idDefaultElement' => 13, 'idFormula' => 3],
-            ['idFormulaDefault' => 16, 'idDefaultElement' => 14, 'idFormula' => 1],
-            ['idFormulaDefault' => 17, 'idDefaultElement' => 14, 'idFormula' => 2],
-            ['idFormulaDefault' => 18, 'idDefaultElement' => 14, 'idFormula' => 3],
-            ['idFormulaDefault' => 19, 'idDefaultElement' => 15, 'idFormula' => 2],
-            ['idFormulaDefault' => 20, 'idDefaultElement' => 15, 'idFormula' => 3],
-            ['idFormulaDefault' => 21, 'idDefaultElement' => 16, 'idFormula' => 2],
-            ['idFormulaDefault' => 22, 'idDefaultElement' => 17, 'idFormula' => 2],
-            ['idFormulaDefault' => 23, 'idDefaultElement' => 18, 'idFormula' => 3],
-            ['idFormulaDefault' => 24, 'idDefaultElement' => 19, 'idFormula' => 3],
+            ['id' => 1, 'default_element_id' => 1, 'formula_id' => 1],
+            ['id' => 2, 'default_element_id' => 2, 'formula_id' => 2],
+            ['id' => 3, 'default_element_id' => 2, 'formula_id' => 3],
+            ['id' => 4, 'default_element_id' => 3, 'formula_id' => 1],
+            ['id' => 5, 'default_element_id' => 4, 'formula_id' => 2],
+            ['id' => 6, 'default_element_id' => 5, 'formula_id' => 3],
+            ['id' => 7, 'default_element_id' => 6, 'formula_id' => 1],
+            ['id' => 8, 'default_element_id' => 7, 'formula_id' => 2],
+            ['id' => 9, 'default_element_id' => 7, 'formula_id' => 3],
+            ['id' => 10, 'default_element_id' => 8, 'formula_id' => 1],
+            ['id' => 11, 'default_element_id' => 9, 'formula_id' => 2],
+            ['id' => 12, 'default_element_id' => 10, 'formula_id' => 3],
+            ['id' => 13, 'default_element_id' => 11, 'formula_id' => 1],
+            ['id' => 14, 'default_element_id' => 12, 'formula_id' => 2],
+            ['id' => 15, 'default_element_id' => 13, 'formula_id' => 3],
+            ['id' => 16, 'default_element_id' => 14, 'formula_id' => 1],
+            ['id' => 17, 'default_element_id' => 14, 'formula_id' => 2],
+            ['id' => 18, 'default_element_id' => 14, 'formula_id' => 3],
+            ['id' => 19, 'default_element_id' => 15, 'formula_id' => 2],
+            ['id' => 20, 'default_element_id' => 15, 'formula_id' => 3],
+            ['id' => 21, 'default_element_id' => 16, 'formula_id' => 2],
+            ['id' => 22, 'default_element_id' => 17, 'formula_id' => 2],
+            ['id' => 23, 'default_element_id' => 18, 'formula_id' => 3],
+            ['id' => 24, 'default_element_id' => 19, 'formula_id' => 3],
         ];
 
         foreach ($formulaDefaults as $formulaDefault) {
-            FormulaDefault::create($formulaDefault);
+            FormulaDefault::updateOrCreate(
+                ['id' => $formulaDefault['id']], // Critère pour éviter les doublons
+                $formulaDefault
+            );
         }
     }
 }

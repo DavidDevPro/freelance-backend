@@ -12,7 +12,7 @@ class FormulaController extends Controller
      */
     public function index()
     {
-        $formulas = Formula::with(['defaultElements', 'options'])->get();
+        $formulas = Formula::with(['defaultElements', 'customOptions'])->get();
 
         $demoPackages = $formulas->map(function ($formula) {
             $groupedFeatures = $formula->defaultElements->groupBy('name')->map(function ($items, $name) {
@@ -21,11 +21,11 @@ class FormulaController extends Controller
             });
 
             return [
-                'id' => 'package_' . $formula->idFormula,
+                'id' => 'package_' . $formula->id,
                 'name' => $formula->name,
                 'description' => $formula->description,
                 'features' => $groupedFeatures->values()->toArray(),
-                'options' => $formula->options->map(function ($option) {
+                'options' => $formula->customOptions->map(function ($option) {
                     return [
                         'name' => $option->name,
                         'description' => $option->description,
@@ -46,7 +46,7 @@ class FormulaController extends Controller
         $validatedData = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'basePrice' => 'required|numeric',
+            'base_price' => 'required|numeric',
             'popular' => 'boolean',
             'active' => 'boolean',
             // Ajoutez des règles de validation pour les éléments par défaut et les options si nécessaire
@@ -74,7 +74,7 @@ class FormulaController extends Controller
         });
 
         $formattedFormula = [
-            'id' => 'package_' . $formula->idFormula,
+            'id' => 'package_' . $formula->id,
             'name' => $formula->name,
             'description' => $formula->description,
             'features' => $groupedFeatures->values()->toArray(),
@@ -97,7 +97,7 @@ class FormulaController extends Controller
         $validatedData = $request->validate([
             'name' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string',
-            'basePrice' => 'sometimes|required|numeric',
+            'base_price' => 'sometimes|required|numeric',
             'popular' => 'boolean',
             'active' => 'boolean',
             // Ajoutez des règles de validation pour les éléments par défaut et les options si nécessaire

@@ -9,28 +9,20 @@ class Formula extends Model
 {
     use HasFactory;
 
-    // Définir la table associée
-    protected $table = 'formulas';
-
-    // Définir la clé primaire
-    protected $primaryKey = 'idFormula';
-
     // Définir les champs remplissables
-    protected $fillable = ['name', 'description', 'basePrice', 'popular', 'active'];
+    protected $fillable = ['name', 'description', 'base_price', 'popular', 'active'];
 
-    // Relations
-
-    // Relation avec DefaultElement via la table pivot formula_defaults
+    // Relation avec FormulaDefaultElement via la table pivot 'formula_defaults'
     public function defaultElements()
     {
-        return $this->belongsToMany(DefaultElement::class, 'formula_defaults', 'idFormula', 'idDefaultElement')
-            ->withTimestamps();
+        return $this->belongsToMany(FormulaDefaultElement::class, 'formula_defaults', 'formula_id', 'default_element_id')
+                    ->withTimestamps();
     }
 
-    // Relation avec Option via la table pivot formula_options
-    public function options()
+    // Relation avec FormulaCustomOption via la table pivot 'formula_options'
+    public function customOptions()
     {
-        return $this->belongsToMany(Option::class, 'formula_options', 'idFormula', 'idOption')
-            ->withTimestamps();
+        return $this->belongsToMany(FormulaCustomOption::class, 'formula_options', 'formula_id', 'option_id')
+                    ->withTimestamps();
     }
 }

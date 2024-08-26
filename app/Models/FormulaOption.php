@@ -9,9 +9,18 @@ class FormulaOption extends Model
 {
     use HasFactory;
 
-    // Définir la table associée
-    protected $table = 'formula_options';
+    // Les attributs qui sont assignables en masse.
+    protected $fillable = ['formula_id', 'option_id'];
 
-    // Définir les champs remplissables
-    protected $fillable = ['idFormula', 'idOption'];
+    // Relation avec le modèle Formula
+    public function formula()
+    {
+        return $this->belongsTo(Formula::class, 'formula_id', 'id');
+    }
+
+    // Relation avec le modèle FormulaCustomOption
+    public function customOption()
+    {
+        return $this->belongsTo(FormulaCustomOption::class, 'option_id', 'id');
+    }
 }

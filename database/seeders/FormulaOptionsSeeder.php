@@ -13,21 +13,23 @@ class FormulaOptionsSeeder extends Seeder
     public function run(): void
     {
         $formulaOptions = [
-
-            ['idFormulaOptions' => 1, 'idOption' => 1, 'idFormula' => 1],
-            ['idFormulaOptions' => 2, 'idOption' => 1, 'idFormula' => 2],
-            ['idFormulaOptions' => 3, 'idOption' => 1, 'idFormula' => 3],
-            ['idFormulaOptions' => 4, 'idOption' => 2, 'idFormula' => 1],
-            ['idFormulaOptions' => 5, 'idOption' => 2, 'idFormula' => 2],
-            ['idFormulaOptions' => 6, 'idOption' => 3, 'idFormula' => 1],
-            ['idFormulaOptions' => 7, 'idOption' => 3, 'idFormula' => 2],
-            ['idFormulaOptions' => 8, 'idOption' => 4, 'idFormula' => 1],
-            ['idFormulaOptions' => 9, 'idOption' => 4, 'idFormula' => 2],
-            ['idFormulaOptions' => 10, 'idOption' => 5, 'idFormula' => 1],
+            ['id' => 1, 'option_id' => 1, 'formula_id' => 1],
+            ['id' => 2, 'option_id' => 1, 'formula_id' => 2],
+            ['id' => 3, 'option_id' => 1, 'formula_id' => 3],
+            ['id' => 4, 'option_id' => 2, 'formula_id' => 1],
+            ['id' => 5, 'option_id' => 2, 'formula_id' => 2],
+            ['id' => 6, 'option_id' => 3, 'formula_id' => 1],
+            ['id' => 7, 'option_id' => 3, 'formula_id' => 2],
+            ['id' => 8, 'option_id' => 4, 'formula_id' => 1],
+            ['id' => 9, 'option_id' => 4, 'formula_id' => 2],
+            ['id' => 10, 'option_id' => 5, 'formula_id' => 1],
         ];
 
         foreach ($formulaOptions as $formulaOption) {
-            FormulaOption::create($formulaOption);
+            FormulaOption::updateOrCreate(
+                ['id' => $formulaOption['id']], // Critère pour éviter les doublons
+                $formulaOption
+            );
         }
     }
 }

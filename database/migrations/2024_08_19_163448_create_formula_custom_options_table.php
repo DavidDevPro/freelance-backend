@@ -4,15 +4,14 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
-        Schema::create('options', function (Blueprint $table) {
-            $table->integer('idOption')->autoIncrement(); // Clé primaire auto-incrémentée
+        Schema::create('formula_custom_options', function (Blueprint $table) {
+            $table->id(); // Clé primaire auto-incrémentée standard Laravel
             $table->string('name'); // Nom de l'option
             $table->text('description')->nullable(); // Description de l'option
             $table->decimal('price', 10, 2)->nullable(); // Prix de l'option
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('options');
+        Schema::dropIfExists('formula_custom_options');
     }
 };

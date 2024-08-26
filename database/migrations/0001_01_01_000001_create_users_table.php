@@ -12,13 +12,16 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
+            $table->id(); // Clé primaire standardisée de type bigIncrements
+            $table->string('identifiant')->unique(); // Nom d'utilisateur unique
+            $table->string('email')->unique(); // Email unique
+            $table->timestamp('email_verified_at')->nullable(); // Date de vérification de l'email
             $table->string('password');
-            $table->rememberToken();
-            $table->timestamps();
+            $table->string('urlPictureProfil')->default('defaut.jpg'); // Photo de profil par défaut
+            $table->foreignId('user_permission_id')->nullable()->constrained('user_permissions'); // Clé étrangère compatible avec bigIncrements
+            $table->boolean('isActive')->default(true); // Compte actif par défaut
+            $table->rememberToken(); // Jeton de connexion pour "Remember Me"
+            $table->timestamps(); // Champs created_at et updated_at gérés automatiquement par Laravel
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

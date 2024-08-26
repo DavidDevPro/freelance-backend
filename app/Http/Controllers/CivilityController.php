@@ -23,8 +23,8 @@ class CivilityController extends Controller
     {
         // Valider et créer une nouvelle civilité
         $validatedData = $request->validate([
-            'shortLabel' => 'required|string|max:255|unique:civility',
-            'longLabel' => 'required|string|max:255|unique:civility',
+            'shortLabel' => 'required|string|max:255|unique:civilities,shortLabel',
+            'longLabel' => 'required|string|max:255|unique:civilities,longLabel',
         ]);
 
         $civility = Civility::create($validatedData);
@@ -60,8 +60,8 @@ class CivilityController extends Controller
         }
 
         $validatedData = $request->validate([
-            'shortLabel' => 'sometimes|required|string|max:255|unique:civility,shortLabel,' . $id . ',idCivility',
-            'longLabel' => 'sometimes|required|string|max:255|unique:civility,longLabel,' . $id . ',idCivility',
+            'shortLabel' => 'sometimes|required|string|max:255|unique:civilities,shortLabel,' . $id,
+            'longLabel' => 'sometimes|required|string|max:255|unique:civilities,longLabel,' . $id,
         ]);
 
         $civility->update($validatedData);

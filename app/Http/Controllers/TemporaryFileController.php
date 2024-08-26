@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 class TemporaryFileController extends Controller
 {
     /**
-     * Handle the incoming request to store a temporary file.
+     * Gérer la requête entrante pour stocker un fichier temporaire.
      *
      * @param \Illuminate\Http\Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -17,12 +17,12 @@ class TemporaryFileController extends Controller
     public function store(Request $request)
     {
         // Valider le fichier reçu
-        $request->validate([
-            'file' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx|max:3072', // 3MB max, type spécifique
+        $validatedData = $request->validate([
+            'file' => 'required|file|mimes:jpg,jpeg,png,pdf,doc,docx,xls,xlsx|max:3072', // 3MB max, types spécifiques
         ]);
 
-        // Récupérer le fichier depuis la requête
-        $file = $request->file('file');
+        // Récupérer le fichier depuis la requête validée
+        $file = $validatedData['file'];
 
         // Générer un nom de fichier unique
         $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();

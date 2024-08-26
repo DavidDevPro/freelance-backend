@@ -25,7 +25,10 @@ class CivilitySeeder extends Seeder
         ];
 
         foreach ($civilities as $civility) {
-            Civility::create($civility);
+            Civility::updateOrCreate(
+                ['shortLabel' => $civility['shortLabel']], // Critère pour éviter les doublons
+                $civility
+            );
         }
     }
 }

@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('civility', function (Blueprint $table) {
-            $table->integer('idCivility')->autoIncrement(); // Utilisation de integer avec auto-incrémentation
-            $table->string('shortLabel')->unique();
-            $table->string('longLabel')->unique();
+        Schema::create('civilities', function (Blueprint $table) {
+            $table->id(); // Clé primaire auto-incrémentée standard Laravel
+            $table->string('shortLabel')->unique(); // Libellé court unique
+            $table->string('longLabel')->unique(); // Libellé long unique
             $table->timestamps(); // Utilisation des timestamps pour created_at et updated_at
         });
     }
@@ -24,6 +24,7 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('civility');
+        Schema::dropIfExists('civilities');
     }
 };
+

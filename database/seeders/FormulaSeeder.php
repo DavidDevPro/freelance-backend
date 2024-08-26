@@ -14,41 +14,44 @@ class FormulaSeeder extends Seeder
     {
         $formulas = [
             [
-                'idFormula' => 1,
+                'id' => 1,
                 'name' => 'Essentiel',
                 'description' => "L'option idéale pour les sites vitrines et les projets de petites envergures",
-                'basePrice' => 800.00,
+                'base_price' => 800.00, // Assurez-vous que cela correspond à la colonne dans la migration
                 'popular' => false,
                 'active' => true,
             ],
             [
-                'idFormula' => 2,
+                'id' => 2,
                 'name' => 'Premium',
                 'description' => 'Idéal pour les projets de taille moyenne cherchant un impact significatif',
-                'basePrice' => 1500.00,
+                'base_price' => 1500.00,
                 'popular' => true,
                 'active' => true,
             ],
             [
-                'idFormula' => 3,
+                'id' => 3,
                 'name' => 'Expert',
                 'description' => 'Pour les projets ambitieux nécessitant une expertise technique approfondie',
-                'basePrice' => 2000.00,
+                'base_price' => 2000.00,
                 'popular' => false,
                 'active' => true,
             ],
             [
-                'idFormula' => 4,
+                'id' => 4,
                 'name' => 'Prendre un rendez-vous',
                 'description' => '',
-                'basePrice' => 0.00,
+                'base_price' => 0.00,
                 'popular' => false,
                 'active' => true,
             ],
         ];
 
         foreach ($formulas as $formula) {
-            Formula::create($formula);
+            Formula::updateOrCreate(
+                ['id' => $formula['id']], // Critère pour éviter les doublons
+                $formula
+            );
         }
     }
 }

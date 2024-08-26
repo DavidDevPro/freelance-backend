@@ -2,6 +2,10 @@
 //Provider/AppServiceProvider
 namespace App\Providers;
 
+use App\Models\User;
+use App\Models\Customer;
+use App\Observers\UserObserver;
+use App\Observers\CustomerObserver;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
@@ -35,6 +39,10 @@ class AppServiceProvider extends ServiceProvider
                 Log::debug($sql, ['time' => $query->time]);
             });
         }
+
+        User::observe(UserObserver::class);
+
+        Customer::observe(CustomerObserver::class);
     }
     
 }

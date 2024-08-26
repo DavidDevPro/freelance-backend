@@ -7,20 +7,23 @@ use Illuminate\Database\Eloquent\Model;
 
 class Testimonial extends Model
 {
-  use HasFactory;
+    use HasFactory;
 
-  /**
-   * The attributes that are mass assignable.
-   *
-   * @var array<int, string>
-   */
-  protected $fillable = [
-    'name',
-    'role',
-    'description',
-    'image_url',
-    'rating',
-    'source',
-    'created_at'
-  ];
+    /**
+     * Les attributs qui sont assignables en masse.
+     *
+     * @var array<int, string>
+     */
+    protected $fillable = [
+        'name', 'role', 'comment', 'image_url', 'rating', 'source',
+    ];
+
+    /**
+     * Les attributs qui doivent être castés en types natifs.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'rating' => 'float',
+    ];
 }

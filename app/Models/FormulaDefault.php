@@ -8,26 +8,19 @@ use Illuminate\Database\Eloquent\Model;
 class FormulaDefault extends Model
 {
     use HasFactory;
-    // Le nom de la table associée à ce modèle
-    protected $table = 'formula_defaults';
+
     // Les attributs qui sont assignables en masse.
-    protected $fillable = [
-        'idDefaultElement',
-        'idFormula',
-    ];
-    // Désactive les timestamps si vous ne voulez pas qu'ils soient automatiquement gérés par Eloquent
-    public $timestamps = true;
-    /**
-     * Les relations avec les autres modèles.
-     */
+    protected $fillable = ['default_element_id', 'formula_id'];
+
     // Relation avec le modèle Formula
     public function formula()
     {
-        return $this->belongsTo(Formula::class, 'idFormula', 'idFormula');
+        return $this->belongsTo(Formula::class, 'formula_id', 'id');
     }
-    // Relation avec le modèle DefaultElement
+
+    // Relation avec le modèle FormulaDefaultElement
     public function defaultElement()
     {
-        return $this->belongsTo(DefaultElement::class, 'idDefaultElement', 'idDefaultElement');
+        return $this->belongsTo(FormulaDefaultElement::class, 'default_element_id', 'id');
     }
 }

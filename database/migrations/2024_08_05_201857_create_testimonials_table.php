@@ -14,14 +14,14 @@ class CreateTestimonialsTable extends Migration
     public function up()
     {
         Schema::create('testimonials', function (Blueprint $table) {
-            $table->integer('id')->autoIncrement();
+            $table->id(); // Utilisation de l'ID auto-incrémenté standard Laravel
             $table->string('image_url')->nullable(); // Permettre que l'URL de l'image soit nullable
             $table->string('name');
             $table->string('role');
-            $table->text('description');
-            $table->decimal('rating', 2, 1);
+            $table->text('comment');
+            $table->decimal('rating', 2, 1); // Note sur 2 chiffres avant la virgule et 1 après
             $table->string('source')->nullable(); // Ajouter la colonne source
-            $table->timestamps();
+            $table->timestamps(); // Colonnes created_at et updated_at
         });
     }
 

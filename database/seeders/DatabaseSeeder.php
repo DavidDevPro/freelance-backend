@@ -12,12 +12,18 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
-            FormulaSeeder::class,
-            DefaultElementSeeder::class,
-            FormulaDefaultSeeder::class,
-            OptionSeeder::class,
-            FormulaOptionsSeeder::class,
             CivilitySeeder::class,
+            UserPermissionsSeeder::class,
+            UserSeeder::class,
+            FormulaSeeder::class,
+            FormulaDefaultElementSeeder::class,
+            FormulaDefaultSeeder::class,
+            FormulaCustomOptionSeeder::class,
+            FormulaOptionsSeeder::class,
+            TestimonialSeeder::class,
+            CompanySeeder::class,
+            StatusSeeder::class,
+            CustomerSeeder::class,
         ]);
     }
 }
