@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Services\MailService;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+
 
 class AuthController extends Controller
 {
@@ -16,7 +18,7 @@ class AuthController extends Controller
     {
         $this->mailService = $mailService;
     }
-    
+
     /**
      * @OA\Post(
      *     path="/api/login",
@@ -51,43 +53,54 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        // Validation des champs de requête
-        $request->validate([
-            'identifiant' => 'required|string',
-            'password' => 'required|string',
-        ]);
-    
-        // Recherche de l'utilisateur par identifiant
-        $user = User::where('identifiant', $request->identifiant)->first();
-    
-        // Vérification de l'utilisateur et du mot de passe
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+        // Validation des données de la requête
+        $validatedData = $this->validateLoginData($request);
+
+        try {
+            // Recherche de l'utilisateur par identifiant
+            $user = User::where('identifiant', $validatedData['identifiant'])->first();
+
+            // Vérification de l'utilisateur et du mot de passe
+            if (!$user || !Hash::check($validatedData['password'], $user->password)) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized'], 401);
+            }
+
+            // Démarrer une transaction pour garantir la cohérence des données
+            DB::beginTransaction();
+
+            // Charger explicitement la relation userPermission
+            $user->load('userPermission');
+
+            // Création d'un token d'authentification
+            $plainTextToken = $user->createToken('authToken')->plainTextToken;
+
+            // Mise à jour des champs utilisateur lors de la connexion
+            $user->update([
+                'email_verified_at' => now(),
+                'isActive' => true,
+            ]);
+
+            DB::commit(); // Valider la transaction
+
+            $userRole = $user->isAdmin() ? 'admin' : 'utilisateur';
+
+            // Réponse JSON avec les informations de l'utilisateur et le token
+            return response()->json([
+                'success' => true,
+                'id' => $user->id,
+                'identifiant' => $user->identifiant,
+                'token' => $plainTextToken,
+                'urlPictureProfil' => $user->urlPictureProfil,
+                'userRole' => $userRole,
+            ]);
+
+        } catch (\Exception $e) {
+            // Si une erreur se produit, annuler toutes les opérations
+            DB::rollBack();
+            Log::error('Erreur lors de la connexion : ' . $e->getMessage());
+
+            return response()->json(['success' => false, 'message' => 'Erreur serveur'], 500);
         }
-        
-        // Charger explicitement la relation userPermission
-        $user->load('userPermission');
-    
-        // Création d'un token d'authentification
-        $plainTextToken = $user->createToken('authToken')->plainTextToken;
-    
-        // Mise à jour des champs utilisateur lors de la connexion
-        $user->update([
-            'email_verified_at' => now(),
-            'isActive' => true,
-        ]);
-    
-        $userRole = $user->isAdmin() ? 'admin' : 'utilisateur';
-        
-        // Réponse JSON avec les informations de l'utilisateur et le token
-        return response()->json([
-            'success' => true,
-            'id' => $user->id,
-            'identifiant' => $user->identifiant,
-            'token' => $plainTextToken,
-            'urlPictureProfil' => $user->urlPictureProfil,
-            'userRole' => $userRole,
-        ]);
     }
 
     /**
@@ -134,5 +147,19 @@ class AuthController extends Controller
 
         // Si l'utilisateur n'est pas trouvé ou n'est pas authentifié, retournez success false sans message
         return response()->json(['success' => false], 401);
+    }
+
+    /**
+     * Valider les données de la requête de connexion
+     *
+     * @param Request $request
+     * @return array
+     */
+    protected function validateLoginData(Request $request)
+    {
+        return $request->validate([
+            'identifiant' => 'required|string',
+            'password' => 'required|string',
+        ]);
     }
 }

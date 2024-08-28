@@ -3,34 +3,136 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Customer;
-use App\Models\Proposal;
-use App\Models\Status;
-use App\Models\Civility;
+use App\Services\MailService;
+use App\Helpers\EmailHelper;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\ProposalController;
 use App\Models\Formula;
 use App\Models\FormulaCustomOption;
-use App\Models\User;
-use App\Services\UniqueIdentifierService;
-use App\Services\MailService;
-use Illuminate\Support\Facades\Hash;
-use App\Models\ProposalDefaultElement;
-use App\Models\ProposalCustomOption;
 use App\Models\ProposalAttachment;
+use App\Models\ProposalCustomOption;
+use App\Models\ProposalDefaultElement;
 
 class ProposalRequestController extends Controller
 {
     protected $mailService;
+    protected $userController;
+    protected $customerController;
+    protected $proposalController;
 
-    public function __construct(MailService $mailService)
-    {
+    public function __construct(
+        MailService $mailService, 
+        UserController $userController, 
+        CustomerController $customerController, 
+        ProposalController $proposalController
+    ) {
         $this->mailService = $mailService;
+        $this->userController = $userController;
+        $this->customerController = $customerController;
+        $this->proposalController = $proposalController;
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/proposal-request",
+     *     summary="Soumettre une demande de devis",
+     *     operationId="storeProposalRequest",
+     *     tags={"Proposals-Request"},
+     *     @OA\RequestBody(
+     *         description="Données nécessaires pour soumettre une demande de devis",
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"formule"},
+     *             @OA\Property(property="formule", type="string", example="Formule A"),
+     *             @OA\Property(property="options", type="array", @OA\Items(type="boolean")),
+     *             @OA\Property(property="pageCount", type="integer", example=2),
+     *             @OA\Property(property="supplementalInfo", type="string", example="Informations supplémentaires..."),
+     *             @OA\Property(property="fileInput0", type="string", example="file0.jpg"),
+     *             @OA\Property(property="fileComment0", type="string", example="Commentaire fichier 0"),
+     *             @OA\Property(property="civility", type="string", example="Monsieur"),
+     *             @OA\Property(property="firstName", type="string", example="John"),
+     *             @OA\Property(property="lastName", type="string", example="Doe"),
+     *             @OA\Property(property="address", type="string", example="123 rue de la Paix"),
+     *             @OA\Property(property="postalCode", type="string", example="75000"),
+     *             @OA\Property(property="city", type="string", example="Paris"),
+     *             @OA\Property(property="phone", type="string", example="0123456789"),
+     *             @OA\Property(property="email", type="string", format="email", example="john.doe@example.com"),
+     *             @OA\Property(property="customerType", type="string", example="particulier")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Demande de devis soumise avec succès",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Votre demande de devis a été soumise avec succès !"),
+     *             @OA\Property(property="proposal", type="object", ref="#/components/schemas/Proposal")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=400,
+     *         description="Données invalides"
+     *     ),
+     *     @OA\Response(
+     *         response=500,
+     *         description="Erreur serveur"
+     *     )
+     * )
+     */
     public function store(Request $request)
     {
-        // Validation des données du formulaire
-        $validatedData = $request->validate([
+        // Démarrer une transaction pour garantir que toutes les opérations sont atomiques
+        DB::beginTransaction();
+
+        try {
+            // Valider les données de la requête
+            $validatedData = $this->validateData($request);
+
+            // Créer l'utilisateur
+            $user = $this->userController->createUser($validatedData);
+
+            // Créer ou mettre à jour le client
+            $customer = $this->customerController->createOrUpdateCustomer($validatedData, $user);
+
+            // Créer la proposition
+            $proposal = $this->proposalController->createProposal($validatedData, $customer, $user);
+
+            // Gérer les uploads de fichiers
+            $filePaths = $this->handleFileUploads($validatedData, $customer, $proposal);
+
+            // Associer les fichiers à la proposition
+            $this->attachFilesToProposal($proposal, $filePaths);
+
+            // Associer les éléments par défaut à la proposition
+            $this->associateDefaultElements($proposal, $validatedData['formule']);
+
+            // Associer les options personnalisées à la proposition
+            $selectedOptions = $this->associateCustomOptions($proposal, $validatedData);
+
+            // Envoyer les emails de confirmation et de notification
+            $this->sendEmails($validatedData, $selectedOptions);
+
+            // Si tout est réussi, valider la transaction
+            DB::commit();
+
+            return response()->json(['message' => 'Votre demande de devis a été soumise avec succès !', 'proposal' => $proposal], 201);
+
+        } catch (\Exception $e) {
+            // Si une erreur se produit, annuler toutes les opérations
+            DB::rollBack();
+
+            return response()->json(['message' => 'Une erreur est survenue lors de la soumission de votre demande de devis.', 'error' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Valider les données de la requête
+     */
+    protected function validateData(Request $request)
+    {
+        return $request->validate([
             'formule' => 'required|string|max:255',
             'options' => 'nullable|array',
             'options.*' => ['nullable', 'in:true,false,1,0'],
@@ -42,9 +144,6 @@ class ProposalRequestController extends Controller
             'fileComment0' => 'nullable|string',
             'fileComment1' => 'nullable|string',
             'fileComment2' => 'nullable|string',
-            'fileName0' => 'nullable|string',
-            'fileName1' => 'nullable|string',
-            'fileName2' => 'nullable|string',
             'civility' => 'nullable|string',
             'firstName' => 'nullable|string',
             'lastName' => 'nullable|string',
@@ -55,117 +154,70 @@ class ProposalRequestController extends Controller
             'email' => 'nullable|email',
             'customerType' => 'nullable|string',
         ]);
+    }
 
-        // Trouver ou créer la civilité
-        $civility = $validatedData['civility'] ? Civility::firstOrCreate(['longLabel' => $validatedData['civility']]) : null;
-
-        // Trouver ou créer le statut
-        $status = Status::where('entity_type', 'customer')
-            ->where('label_status', 'Prospect')
-            ->first();
-
-        if (!$status) {
-            return response()->json(['message' => 'Le statut par défaut "Prospect" est introuvable.'], 500);
-        }
-
-        // Générer l'identifiant utilisateur unique
-        $firstName = strtolower($validatedData['firstName']);
-        $lastName = strtolower($validatedData['lastName']);
-        $identifier = UniqueIdentifierService::generateIdentifier($firstName, $lastName);
-
-        // Créer l'utilisateur
-        $user = User::create([
-            'identifiant' => $identifier,
-            'password' => Hash::make($firstName), // Utiliser le prénom comme mot de passe par défaut
-            'email' => $validatedData['email'],
-            'user_permission_id' => 2, // Rôle utilisateur standard
-            'urlPictureProfil' => 'defaut.jpg', // Image de profil par défaut
-            'isActive' => false, // Le compte n'est pas activé par défaut
-        ]);
-
-        // Créer ou mettre à jour le client
-        $customer = Customer::updateOrCreate(
-            [
-                'email' => $validatedData['email'],
-                'phone' => $validatedData['phone'],
-                'address' => $validatedData['address'],
-                'postal_code' => $validatedData['postalCode'],
-                'city' => $validatedData['city']
-            ],
-            [
-                'civility_id' => $civility ? $civility->id : null,
-                'company_name' => $validatedData['customerType'] === 'particulier' ?
-                    $validatedData['firstName'] . ' ' . $validatedData['lastName'] :
-                    null,
-                'last_name' => $validatedData['lastName'],
-                'first_name' => $validatedData['firstName'],
-                'phone' => $validatedData['phone'],
-                'email' => $validatedData['email'],
-                'address' => $validatedData['address'],
-                'postal_code' => $validatedData['postalCode'],
-                'city' => $validatedData['city'],
-                'country' => $validatedData['country'] ?? null,
-                'status_id' => $status->id,
-                'user_id' => $user->id, // Associer l'utilisateur au client
-            ]
-        );
-
-        // Obtenir la référence client générée après la création ou la mise à jour
-        $customerNumber = $customer->customer_number;
-
-        // Créer la proposition
-        $proposal = Proposal::create([
-            'proposal_number' => UniqueIdentifierService::generateProposalNumber($customer->customer_number), // Générer un numéro de proposition unique
-            'formula' => $validatedData['formule'],
-            'supplementalInfo' => $validatedData['supplementalInfo'],
-            'amount' => 0, // Mettre à jour avec le montant calculé
-            'issue_date' => now(),
-            'expiry_date' => now()->addDays(30), // Exemple : 30 jours après l'émission
-            'customer_id' => $customer->id,
-            'status_id' => Status::where('label_status', 'En Attente')->first()->id,
-            'created_by' => $user->id,
-        ]);
-
-        // Créer un sous-dossier basé sur le customer_number et le proposal_number
-        $directory = 'public/proposal_request/' . $customerNumber . '/' . $proposal->proposal_number;
+    /**
+     * Gérer les uploads de fichiers et retourner leurs chemins
+     */
+    protected function handleFileUploads(array $validatedData, $customer, $proposal)
+    {
+        $directory = 'public/proposal_request/' . $customer->customer_number . '/' . $proposal->proposal_number;
         Storage::makeDirectory($directory);
 
-        // Déplacer les fichiers dans le sous-dossier de la proposition avec les noms spécifiés
         $filePaths = [];
         foreach ([0, 1, 2] as $i) {
             $fileInputKey = "fileInput$i";
             $fileCommentKey = "fileComment$i";
 
             if (!empty($validatedData[$fileInputKey])) {
-                // Utilise le nom du fichier comment fourni ou le nom de fichier par défaut
                 $filename = $validatedData[$fileCommentKey] . '.' . pathinfo($validatedData[$fileInputKey], PATHINFO_EXTENSION);
                 $filePath = "$directory/$filename";
-
-                // Déplace le fichier temporaire vers le sous-dossier de la proposition avec le nom spécifié
                 Storage::move("public/proposal_request/temporary/" . basename($validatedData[$fileInputKey]), $filePath);
-
-                // Retirer 'public/' du chemin pour le stocker dans la base de données
                 $storedPath = str_replace('public/', '', $filePath);
-
                 $filePaths[$fileInputKey] = $storedPath;
             }
         }
 
-        // Associer les éléments par défaut à la proposition
-        if (!empty($validatedData['formule'])) {
-            // Vous devez récupérer les éléments par défaut liés à la formule et les associer au devis ici
-            $defaultElements = Formula::where('name', $validatedData['formule'])->first()->defaultElements;
+        return $filePaths;
+    }
 
-            foreach ($defaultElements as $element) {
-                ProposalDefaultElement::create([
-                    'proposal_id' => $proposal->id,
-                    'name' => $element->name,
-                    'description' => $element->description,
-                ]);
-            }
+    /**
+     * Associer les fichiers téléchargés à la proposition
+     */
+    protected function attachFilesToProposal($proposal, array $filePaths)
+    {
+        foreach ($filePaths as $filePath) {
+            ProposalAttachment::create([
+                'proposal_id' => $proposal->id,
+                'filename' => basename($filePath),
+                'path' => $filePath,
+            ]);
         }
+    }
 
-        // Associer les options sélectionnées au devis
+    /**
+     * Associer les éléments par défaut à la proposition
+     */
+    protected function associateDefaultElements($proposal, string $formula)
+    {
+        $defaultElements = Formula::where('name', $formula)->first()->defaultElements;
+
+        foreach ($defaultElements as $element) {
+            ProposalDefaultElement::create([
+                'proposal_id' => $proposal->id,
+                'name' => $element->name,
+                'description' => $element->description,
+            ]);
+        }
+    }
+
+    /**
+     * Associer les options personnalisées à la proposition
+     */
+    protected function associateCustomOptions($proposal, array $validatedData)
+    {
+        $selectedOptions = [];
+
         if (!empty($validatedData['options'])) {
             foreach ($validatedData['options'] as $optionName => $enabled) {
                 if ($enabled) {
@@ -173,9 +225,11 @@ class ProposalRequestController extends Controller
                     if ($option) {
                         $description = $option->description;
 
-                        // Si l'option est "Ajout de pages supplémentaires", mettre à jour la description avec pageCount
                         if ($optionName === "Ajout de pages supplémentaires" && !empty($validatedData['pageCount'])) {
-                            $description = $validatedData['pageCount'];
+                            $description = $validatedData['pageCount'] . ' pages supplémentaires';
+                            $selectedOptions[] = $option->name . ' (+' . $validatedData['pageCount'] . ' pages)';
+                        } else {
+                            $selectedOptions[] = $option->name;
                         }
 
                         ProposalCustomOption::create([
@@ -189,25 +243,16 @@ class ProposalRequestController extends Controller
             }
         }
 
-        // Enregistrer les pièces jointes dans la table proposal_attachments
-        foreach ($filePaths as $fileKey => $filePath) {
-            ProposalAttachment::create([
-                'proposal_id' => $proposal->id,
-                'filename' => basename($filePath),
-                'path' => $filePath,
-            ]);
-        }
+        return $selectedOptions;
+    }
 
-        // Envoyer l'email de confirmation au client
-        $this->mailService->sendProposalConfirmationEmail(
-            $validatedData['email'],
-            $validatedData['civility'] . ' ' . $validatedData['firstName'] . ' ' . $validatedData['lastName'],
-            $validatedData['formule']
-        );
-
-        // Envoyer l'email de notification à l'administrateur
-        $this->mailService->sendProposalNotificationEmail($validatedData);
-
-        return response()->json(['message' => 'Votre demande de devis a été soumise avec succès !', 'proposal' => $proposal], 201);
+    /**
+     * Envoyer les emails de confirmation et de notification
+     */
+    protected function sendEmails(array $validatedData, array $selectedOptions)
+    {
+        EmailHelper::sendEmail($this->mailService, 'proposal_confirmation', $validatedData);
+        $notificationData = array_merge($validatedData, ['options' => $selectedOptions]);
+        EmailHelper::sendEmail($this->mailService, 'proposal_notification', $notificationData);
     }
 }

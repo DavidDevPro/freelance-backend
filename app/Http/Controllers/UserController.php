@@ -7,6 +7,8 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use App\Services\MailService;
+use App\Services\UniqueIdentifierService;
+use App\Helpers\EmailHelper;
 
 class UserController extends Controller
 {
@@ -15,6 +17,24 @@ class UserController extends Controller
     public function __construct(MailService $mailService)
     {
         $this->mailService = $mailService;
+    }
+
+    public function createUser(array $validatedData)
+    {
+        $firstName = strtolower($validatedData['firstName']);
+        $lastName = strtolower($validatedData['lastName']);
+        $identifier = UniqueIdentifierService::generateIdentifier($firstName, $lastName);
+
+        $user = User::create([
+            'identifiant' => $identifier,
+            'password' => Hash::make($firstName), // Assurez-vous de changer cela en un mot de passe sécurisé en production
+            'email' => $validatedData['email'],
+            'user_permission_id' => 2, // Idéalement, les ID de permissions devraient être des constantes ou configurables
+            'urlPictureProfil' => 'defaut.jpg',
+            'isActive' => false,
+        ]);
+
+        return $user;
     }
 
     /**
@@ -26,25 +46,36 @@ class UserController extends Controller
     public function activate($id)
     {
         $user = User::find($id);
-        if ($user) {
-            $user->isActive = true;
-            $user->save();
 
-            // Récupérer le client associé à cet utilisateur
-            $customer = Customer::where('user_id', $user->id)->first();
-            if ($customer) {
-                // Envoyer un email de notification pour l'activation du compte
-                $this->mailService->sendAccountCreationEmail($user->email, $user->identifiant, $customer->first_name, $customer->last_name);
-                // Envoyer l'email avec le mot de passe (utilisant le prénom du client comme mot de passe par défaut)
-                $this->mailService->sendPasswordEmail($user->email, $customer->first_name);
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
 
-                return response()->json(['message' => 'User activated successfully'], 200);
-            }
+        $user->isActive = true;
+        $user->save();
 
+        // Récupérer le client associé à cet utilisateur
+        $customer = Customer::where('user_id', $user->id)->first();
+        
+        if (!$customer) {
             return response()->json(['message' => 'Customer not found for this user'], 404);
         }
 
-        return response()->json(['message' => 'User not found'], 404);
+        // Préparer les données pour les emails
+        $emailData = [
+            'email' => $user->email,
+            'fullName' => trim(($customer->civility ?? '') . ' ' . $customer->first_name . ' ' . $customer->last_name),
+            'username' => $user->identifiant,
+            'namewebsite' => config('app.name'),
+            'linkwebsite' => config('app.url'),
+            'password' => $customer->first_name // Ceci est pour l'email de confirmation de mot de passe
+        ];
+
+        // Envoyer les emails de confirmation
+        EmailHelper::sendEmail($this->mailService, 'account_confirmation', $emailData);
+        EmailHelper::sendEmail($this->mailService, 'password_confirmation', $emailData);
+
+        return response()->json(['message' => 'User activated successfully'], 200);
     }
 
     /**
@@ -56,18 +87,19 @@ class UserController extends Controller
     public function deactivate($id)
     {
         $user = User::find($id);
-        if ($user) {
-            $user->isActive = false;
-            $user->save();
 
-            return response()->json(['message' => 'User deactivated successfully'], 200);
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
         }
 
-        return response()->json(['message' => 'User not found'], 404);
+        $user->isActive = false;
+        $user->save();
+
+        return response()->json(['message' => 'User deactivated successfully'], 200);
     }
 
     /**
-     * Envoyer un e-mail lorsque le statut du client passe de prospect à client.
+     * Envoyer un e-mail de bienvenue lorsque le statut du client passe de prospect à client.
      *
      * @param  string  $email
      * @param  string  $identifier
@@ -77,8 +109,18 @@ class UserController extends Controller
      */
     public function sendClientWelcomeEmail($email, $identifier, $firstName, $lastName)
     {
-        $this->mailService->sendAccountCreationEmail($email, $identifier, $firstName, $lastName);
-        $this->mailService->sendPasswordEmail($email, $firstName);
+        $emailData = [
+            'email' => $email,
+            'fullName' => trim($firstName . ' ' . $lastName),
+            'username' => $identifier,
+            'namewebsite' => config('app.name'),
+            'linkwebsite' => config('app.url'),
+            'password' => $firstName // Ceci est pour l'email de confirmation de mot de passe
+        ];
+
+        // Envoyer les emails de confirmation
+        EmailHelper::sendEmail($this->mailService, 'account_confirmation', $emailData);
+        EmailHelper::sendEmail($this->mailService, 'password_confirmation', $emailData);
     }
 
     /**
@@ -125,19 +167,18 @@ class UserController extends Controller
             'profileImage' => 'nullable|image|max:10240|mimes:jpg,jpeg,png'
         ]);
 
-        $identifier = User::generateIdentifier($request->firstName, $request->lastName);
+        $identifier = User::generateIdentifier($validated['firstName'], $validated['lastName']);
 
         $user = User::create([
             'identifiant' => $identifier,
-            'password' => Hash::make($request->password),
-            'email' => $request->email,
-            'user_permission_id' => $request->userRights,
+            'password' => Hash::make($validated['password']),
+            'email' => $validated['email'],
+            'user_permission_id' => $validated['userRights'],
         ]);
 
         // Gestion de l'image de profil
         if ($request->hasFile('profileImage')) {
             if ($request->file('profileImage')->isValid()) {
-                $originalFilename = $request->file('profileImage')->getClientOriginalName();
                 $extension = $request->file('profileImage')->getClientOriginalExtension();
                 $fileNameToStore = 'profil_' . $user->id . '.' . $extension;
                 $path = $request->file('profileImage')->storeAs('public/profile_images', $fileNameToStore);
@@ -152,7 +193,7 @@ class UserController extends Controller
         $user->save();
 
         // Envoyer un email de bienvenue
-        $this->sendClientWelcomeEmail($user->email, $user->identifiant, $request->firstName, $request->lastName);
+        $this->sendClientWelcomeEmail($user->email, $user->identifiant, $validated['firstName'], $validated['lastName']);
 
         return response()->json([
             'success' => true,

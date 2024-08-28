@@ -1,0 +1,2426 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API davidWebProject",
+        "description": "Cette API est conçue pour gérer l'intégration de diverses fonctionnalités dans mon projet de freelance. Elle permet la gestion complète du backend, incluant la création, la mise à jour, la suppression et la récupération de données essentielles telles que les témoignages clients, les projets, les utilisateurs, et d'autres éléments de contenu. L'API alimente mon site web en fournissant les données nécessaires tout en facilitant la gestion administrative des opérations. Elle est sécurisée via l'authentification par jeton et est optimisée pour une utilisation par des applications web et mobiles. Idéale pour un usage interne, cette API centralise et simplifie la gestion de mon activité freelance.",
+        "contact": {
+            "name": "Support",
+            "url": "https://www.davidwebprojects.fr",
+            "email": "contact@davidwebprojects.fr"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://apifreelance.davidwebprojects.fr",
+            "description": "API Server"
+        }
+    ],
+    "paths": {
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Se connecter",
+                "operationId": "login",
+                "requestBody": {
+                    "description": "Informations d'identification nécessaires pour le login",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "identifiant",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "identifiant": {
+                                        "type": "string",
+                                        "example": "identifiant"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "token"
+                                        },
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 1
+                                        },
+                                        "identifiant": {
+                                            "type": "string",
+                                            "example": "John Doe"
+                                        },
+                                        "urlPictureProfil": {
+                                            "type": "string",
+                                            "example": "/profile_images/johndoe.jpg"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non autorisé"
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Authentification"
+                ],
+                "summary": "Se déconnecter",
+                "operationId": "logout",
+                "responses": {
+                    "200": {
+                        "description": "Déconnexion réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Non autorisé",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Unauthenticated."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/civilities": {
+            "get": {
+                "tags": [
+                    "Civilities"
+                ],
+                "summary": "Récupérer la liste des civilités",
+                "operationId": "getCivilities",
+                "responses": {
+                    "200": {
+                        "description": "Liste des civilités",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Civility"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Civilities"
+                ],
+                "summary": "Créer une nouvelle civilité",
+                "operationId": "createCivility",
+                "requestBody": {
+                    "description": "Données nécessaires pour créer une civilité",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "shortLabel",
+                                    "longLabel"
+                                ],
+                                "properties": {
+                                    "shortLabel": {
+                                        "type": "string",
+                                        "example": "Mr"
+                                    },
+                                    "longLabel": {
+                                        "type": "string",
+                                        "example": "Monsieur"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Civilité créée avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Civility"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Données invalides"
+                    },
+                    "500": {
+                        "description": "Erreur serveur"
+                    }
+                }
+            }
+        },
+        "/api/civilities/{id}": {
+            "get": {
+                "tags": [
+                    "Civilities"
+                ],
+                "summary": "Récupérer une civilité par ID",
+                "operationId": "getCivilityById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de la civilité",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails de la civilité",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Civility"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Civilité non trouvée"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Civilities"
+                ],
+                "summary": "Mettre à jour une civilité",
+                "operationId": "updateCivility",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de la civilité à mettre à jour",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Données nécessaires pour mettre à jour une civilité",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "shortLabel": {
+                                        "type": "string",
+                                        "example": "Mr"
+                                    },
+                                    "longLabel": {
+                                        "type": "string",
+                                        "example": "Monsieur"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Civilité mise à jour avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Civility"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Données invalides"
+                    },
+                    "404": {
+                        "description": "Civilité non trouvée"
+                    },
+                    "500": {
+                        "description": "Erreur serveur"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Civilities"
+                ],
+                "summary": "Supprimer une civilité",
+                "operationId": "deleteCivility",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de la civilité à supprimer",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Civilité supprimée avec succès"
+                    },
+                    "404": {
+                        "description": "Civilité non trouvée"
+                    },
+                    "500": {
+                        "description": "Erreur serveur"
+                    }
+                }
+            }
+        },
+        "/api/company": {
+            "get": {
+                "tags": [
+                    "Company"
+                ],
+                "summary": "Afficher les informations de l'entreprise",
+                "operationId": "getCompany",
+                "responses": {
+                    "200": {
+                        "description": "Informations de l'entreprise",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Company"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/company/{id}": {
+            "get": {
+                "tags": [
+                    "Company"
+                ],
+                "summary": "Afficher les informations de l'entreprise par ID",
+                "operationId": "getCompanyById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de l'entreprise",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Informations de l'entreprise",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Company"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Entreprise non trouvée"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Company"
+                ],
+                "summary": "Mettre à jour les informations de l'entreprise",
+                "operationId": "updateCompany",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de l'entreprise à mettre à jour",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Données nécessaires pour mettre à jour une entreprise",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "company_name": {
+                                        "type": "string",
+                                        "example": "Ma Société"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "0123456789"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "contact@masociete.com"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "123 rue de l'Entreprise"
+                                    },
+                                    "postal_code": {
+                                        "type": "string",
+                                        "example": "75000"
+                                    },
+                                    "city": {
+                                        "type": "string",
+                                        "example": "Paris"
+                                    },
+                                    "siret": {
+                                        "type": "string",
+                                        "example": "12345678901234"
+                                    },
+                                    "ape_code": {
+                                        "type": "string",
+                                        "example": "1234Z"
+                                    },
+                                    "iban": {
+                                        "type": "string",
+                                        "example": "FR7630006000011234567890189"
+                                    },
+                                    "header_text": {
+                                        "type": "string",
+                                        "example": "En-tête personnalisée"
+                                    },
+                                    "footer_text": {
+                                        "type": "string",
+                                        "example": "Pied de page personnalisé"
+                                    },
+                                    "updated_by": {
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Entreprise mise à jour avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Company"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Données invalides"
+                    },
+                    "404": {
+                        "description": "Entreprise non trouvée"
+                    },
+                    "500": {
+                        "description": "Erreur serveur"
+                    }
+                }
+            }
+        },
+        "/api/contact": {
+            "post": {
+                "tags": [
+                    "Contact"
+                ],
+                "summary": "Envoyer un message de contact",
+                "operationId": "sendContactEmail",
+                "requestBody": {
+                    "description": "Données nécessaires pour envoyer un message de contact",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "namewebsite",
+                                    "firstName",
+                                    "lastName",
+                                    "email",
+                                    "phone",
+                                    "subject",
+                                    "message",
+                                    "consent"
+                                ],
+                                "properties": {
+                                    "namewebsite": {
+                                        "type": "string",
+                                        "example": "MonSite"
+                                    },
+                                    "firstName": {
+                                        "type": "string",
+                                        "example": "John"
+                                    },
+                                    "lastName": {
+                                        "type": "string",
+                                        "example": "DOE"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john.doe@example.com"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "0123456789"
+                                    },
+                                    "subject": {
+                                        "type": "string",
+                                        "example": "Demande d'information"
+                                    },
+                                    "message": {
+                                        "type": "string",
+                                        "example": "Je souhaite avoir plus d'informations..."
+                                    },
+                                    "consent": {
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Email envoyé avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Email envoyé avec succès!"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Données invalides"
+                    },
+                    "500": {
+                        "description": "Erreur serveur"
+                    }
+                }
+            }
+        },
+        "/api/customers": {
+            "get": {
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Lister tous les clients",
+                "operationId": "getCustomers",
+                "responses": {
+                    "200": {
+                        "description": "Liste des clients",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Customer"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Créer un nouveau client",
+                "operationId": "createCustomer",
+                "requestBody": {
+                    "description": "Données du client à créer",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Customer"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Client créé avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Customer"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Données invalides"
+                    },
+                    "500": {
+                        "description": "Erreur serveur"
+                    }
+                }
+            }
+        },
+        "/api/customers/{id}": {
+            "get": {
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Afficher les détails d'un client",
+                "operationId": "getCustomerById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID du client",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails du client",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Customer"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Client non trouvé"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Mettre à jour un client existant",
+                "operationId": "updateCustomer",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID du client à mettre à jour",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Données du client à mettre à jour",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Customer"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Client mis à jour avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Customer"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Données invalides"
+                    },
+                    "404": {
+                        "description": "Client non trouvé"
+                    },
+                    "500": {
+                        "description": "Erreur serveur"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Customers"
+                ],
+                "summary": "Supprimer un client",
+                "operationId": "deleteCustomer",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID du client à supprimer",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Client supprimé avec succès"
+                    },
+                    "404": {
+                        "description": "Client non trouvé"
+                    },
+                    "500": {
+                        "description": "Erreur serveur"
+                    }
+                }
+            }
+        },
+        "/api/formulas": {
+            "get": {
+                "tags": [
+                    "Formulas"
+                ],
+                "summary": "Lister toutes les formules avec leurs éléments associés",
+                "operationId": "getFormulas",
+                "responses": {
+                    "200": {
+                        "description": "Liste des formules",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Formula"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Formulas"
+                ],
+                "summary": "Créer une nouvelle formule",
+                "operationId": "createFormula",
+                "requestBody": {
+                    "description": "Données de la formule à créer",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Formula"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Formule créée avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Formula"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Données invalides"
+                    }
+                }
+            }
+        },
+        "/api/formulas/{id}": {
+            "get": {
+                "tags": [
+                    "Formulas"
+                ],
+                "summary": "Afficher les détails d'une formule spécifique",
+                "operationId": "getFormulaById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de la formule à afficher",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails de la formule",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Formula"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Formule non trouvée"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Formulas"
+                ],
+                "summary": "Mettre à jour une formule existante",
+                "operationId": "updateFormula",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de la formule à mettre à jour",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Données de la formule à mettre à jour",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Formula"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Formule mise à jour avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Formula"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Données invalides"
+                    },
+                    "404": {
+                        "description": "Formule non trouvée"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Formulas"
+                ],
+                "summary": "Supprimer une formule existante",
+                "operationId": "deleteFormula",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID de la formule à supprimer",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Formule supprimée avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "string",
+                                            "example": "success"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Formula deleted successfully"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Formule non trouvée"
+                    }
+                }
+            }
+        },
+        "/api/proposals": {
+            "get": {
+                "tags": [
+                    "Proposals"
+                ],
+                "summary": "Lister tous les devis créés",
+                "operationId": "getProposals",
+                "responses": {
+                    "200": {
+                        "description": "Liste des devis",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Proposal"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Proposals"
+                ],
+                "summary": "Créer un nouveau devis",
+                "operationId": "createProposal",
+                "requestBody": {
+                    "description": "Données du devis à créer",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Proposal"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Devis créé avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Proposal"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Données invalides"
+                    }
+                }
+            }
+        },
+        "/api/proposals/{id}": {
+            "get": {
+                "tags": [
+                    "Proposals"
+                ],
+                "summary": "Afficher les détails d'un devis spécifique",
+                "operationId": "getProposalById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID du devis à afficher",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails du devis",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Proposal"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Devis non trouvé"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Proposals"
+                ],
+                "summary": "Mettre à jour un devis existant",
+                "operationId": "updateProposal",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID du devis à mettre à jour",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Données du devis à mettre à jour",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Proposal"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Devis mis à jour avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Proposal"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Données invalides"
+                    },
+                    "404": {
+                        "description": "Devis non trouvé"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Proposals"
+                ],
+                "summary": "Supprimer un devis",
+                "operationId": "deleteProposal",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID du devis à supprimer",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Devis supprimé avec succès"
+                    },
+                    "404": {
+                        "description": "Devis non trouvé"
+                    }
+                }
+            }
+        },
+        "/api/proposal-request": {
+            "post": {
+                "tags": [
+                    "Proposals-Request"
+                ],
+                "summary": "Soumettre une demande de devis",
+                "operationId": "storeProposalRequest",
+                "requestBody": {
+                    "description": "Données nécessaires pour soumettre une demande de devis",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "formule"
+                                ],
+                                "properties": {
+                                    "formule": {
+                                        "type": "string",
+                                        "example": "Formule A"
+                                    },
+                                    "options": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "pageCount": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "supplementalInfo": {
+                                        "type": "string",
+                                        "example": "Informations supplémentaires..."
+                                    },
+                                    "fileInput0": {
+                                        "type": "string",
+                                        "example": "file0.jpg"
+                                    },
+                                    "fileComment0": {
+                                        "type": "string",
+                                        "example": "Commentaire fichier 0"
+                                    },
+                                    "civility": {
+                                        "type": "string",
+                                        "example": "Monsieur"
+                                    },
+                                    "firstName": {
+                                        "type": "string",
+                                        "example": "John"
+                                    },
+                                    "lastName": {
+                                        "type": "string",
+                                        "example": "Doe"
+                                    },
+                                    "address": {
+                                        "type": "string",
+                                        "example": "123 rue de la Paix"
+                                    },
+                                    "postalCode": {
+                                        "type": "string",
+                                        "example": "75000"
+                                    },
+                                    "city": {
+                                        "type": "string",
+                                        "example": "Paris"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "0123456789"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john.doe@example.com"
+                                    },
+                                    "customerType": {
+                                        "type": "string",
+                                        "example": "particulier"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Demande de devis soumise avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Votre demande de devis a été soumise avec succès !"
+                                        },
+                                        "proposal": {
+                                            "$ref": "#/components/schemas/Proposal"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Données invalides"
+                    },
+                    "500": {
+                        "description": "Erreur serveur"
+                    }
+                }
+            }
+        },
+        "/api/statuses": {
+            "get": {
+                "tags": [
+                    "Statuses"
+                ],
+                "summary": "Lister tous les statuts",
+                "operationId": "getStatuses",
+                "responses": {
+                    "200": {
+                        "description": "Liste des statuts",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Status"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Statuses"
+                ],
+                "summary": "Créer un nouveau statut",
+                "operationId": "createStatus",
+                "requestBody": {
+                    "description": "Données du statut à créer",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Status"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Statut créé avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Status"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Données invalides"
+                    }
+                }
+            }
+        },
+        "/api/statuses/{id}": {
+            "get": {
+                "tags": [
+                    "Statuses"
+                ],
+                "summary": "Afficher les détails d'un statut spécifique",
+                "operationId": "getStatusById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID du statut à afficher",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails du statut",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Status"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Statut non trouvé"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Statuses"
+                ],
+                "summary": "Mettre à jour un statut existant",
+                "operationId": "updateStatus",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID du statut à mettre à jour",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Données du statut à mettre à jour",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Status"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Statut mis à jour avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Status"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Données invalides"
+                    },
+                    "404": {
+                        "description": "Statut non trouvé"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Statuses"
+                ],
+                "summary": "Supprimer un statut",
+                "operationId": "deleteStatus",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID du statut à supprimer",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Statut supprimé avec succès"
+                    },
+                    "404": {
+                        "description": "Statut non trouvé"
+                    }
+                }
+            }
+        },
+        "/api/statuses/entity/{entityType}": {
+            "get": {
+                "tags": [
+                    "Statuses"
+                ],
+                "summary": "Lister les statuts par type d'entité",
+                "operationId": "getStatusesByEntityType",
+                "parameters": [
+                    {
+                        "name": "entityType",
+                        "in": "path",
+                        "description": "Type d'entité pour filtrer les statuts",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Liste des statuts pour le type d'entité spécifié",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Status"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Aucun statut trouvé pour ce type d'entité"
+                    }
+                }
+            }
+        },
+        "/proposal-request/temporary-upload": {
+            "post": {
+                "tags": [
+                    "Proposals-Request"
+                ],
+                "summary": "Uploader un fichier temporaire",
+                "operationId": "uploadTemporaryFile",
+                "requestBody": {
+                    "description": "Fichier à uploader temporairement",
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "file": {
+                                        "description": "Le fichier à uploader",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Fichier uploadé temporairement avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "filename": {
+                                            "type": "string",
+                                            "example": "123e4567-e89b-12d3-a456-426614174000.pdf"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Fichier uploadé temporairement avec succès."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Validation des données échouée"
+                    }
+                }
+            }
+        },
+        "/api/testimonials": {
+            "get": {
+                "tags": [
+                    "Testimonials"
+                ],
+                "summary": "Afficher une liste des témoignages",
+                "operationId": "getTestimonials",
+                "responses": {
+                    "200": {
+                        "description": "Liste des témoignages",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Testimonial"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Testimonials"
+                ],
+                "summary": "Créer un nouveau témoignage",
+                "operationId": "storeTestimonial",
+                "requestBody": {
+                    "description": "Données nécessaires pour créer un témoignage",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "firstName",
+                                    "lastName",
+                                    "email",
+                                    "role",
+                                    "comment"
+                                ],
+                                "properties": {
+                                    "firstName": {
+                                        "type": "string",
+                                        "example": "John"
+                                    },
+                                    "lastName": {
+                                        "type": "string",
+                                        "example": "Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "john.doe@example.com"
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "example": "CEO"
+                                    },
+                                    "comment": {
+                                        "type": "string",
+                                        "example": "Excellent service!"
+                                    },
+                                    "avatar": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "avatarUrl": {
+                                        "type": "string",
+                                        "example": "https://example.com/avatar.jpg"
+                                    },
+                                    "source": {
+                                        "type": "string",
+                                        "example": "Website"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Témoignage créé avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Testimonial"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Données invalides"
+                    }
+                }
+            }
+        },
+        "/api/testimonials/{id}": {
+            "get": {
+                "tags": [
+                    "Testimonials"
+                ],
+                "summary": "Afficher un témoignage spécifique",
+                "operationId": "getTestimonial",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID du témoignage",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Détails du témoignage",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Testimonial"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Témoignage non trouvé"
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Testimonials"
+                ],
+                "summary": "Mettre à jour un témoignage existant",
+                "operationId": "updateTestimonial",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID du témoignage",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Données nécessaires pour mettre à jour un témoignage",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "firstName",
+                                    "lastName",
+                                    "role",
+                                    "comment"
+                                ],
+                                "properties": {
+                                    "firstName": {
+                                        "type": "string",
+                                        "example": "John"
+                                    },
+                                    "lastName": {
+                                        "type": "string",
+                                        "example": "Doe"
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "example": "CEO"
+                                    },
+                                    "comment": {
+                                        "type": "string",
+                                        "example": "Excellent service!"
+                                    },
+                                    "avatar": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "source": {
+                                        "type": "string",
+                                        "example": "Website"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Témoignage mis à jour avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Testimonial"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Témoignage non trouvé"
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Testimonials"
+                ],
+                "summary": "Supprimer un témoignage existant",
+                "operationId": "deleteTestimonial",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID du témoignage",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Témoignage supprimé avec succès",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Témoignage supprimé avec succès"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Témoignage non trouvé"
+                    }
+                }
+            }
+        },
+        "/api/register": {
+            "post": {
+                "tags": [
+                    "Utilisateur"
+                ],
+                "summary": "S'inscrire",
+                "operationId": "register",
+                "requestBody": {
+                    "description": "Informations nécessaires pour l'inscription",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "firstName",
+                                    "lastName",
+                                    "password",
+                                    "email",
+                                    "userRights"
+                                ],
+                                "properties": {
+                                    "firstName": {
+                                        "type": "string",
+                                        "example": "John"
+                                    },
+                                    "lastName": {
+                                        "type": "string",
+                                        "example": "Doe"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "email@email.fr"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "password"
+                                    },
+                                    "userRights": {
+                                        "type": "string",
+                                        "example": "admin"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Inscription réussie",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "token"
+                                        },
+                                        "idUser": {
+                                            "type": "integer",
+                                            "example": 1
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Données invalides"
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Civility": {
+                "title": "Civilité",
+                "description": "Modèle de civilité",
+                "required": [
+                    "shortLabel",
+                    "longLabel"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "ID unique de la civilité",
+                        "type": "integer"
+                    },
+                    "shortLabel": {
+                        "description": "Abréviation de la civilité",
+                        "type": "string"
+                    },
+                    "longLabel": {
+                        "description": "Nom complet de la civilité",
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "description": "Date de création",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Date de dernière mise à jour",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Company": {
+                "title": "Company",
+                "description": "Modèle représentant une entreprise",
+                "required": [
+                    "company_name"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "ID unique de l'entreprise",
+                        "type": "integer"
+                    },
+                    "company_name": {
+                        "description": "Nom de l'entreprise",
+                        "type": "string"
+                    },
+                    "phone": {
+                        "description": "Numéro de téléphone de l'entreprise",
+                        "type": "string"
+                    },
+                    "email": {
+                        "description": "Adresse email de l'entreprise",
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "address": {
+                        "description": "Adresse de l'entreprise",
+                        "type": "string"
+                    },
+                    "postal_code": {
+                        "description": "Code postal de l'entreprise",
+                        "type": "string"
+                    },
+                    "city": {
+                        "description": "Ville de l'entreprise",
+                        "type": "string"
+                    },
+                    "siret": {
+                        "description": "Numéro SIRET de l'entreprise",
+                        "type": "string"
+                    },
+                    "ape_code": {
+                        "description": "Code APE de l'entreprise",
+                        "type": "string"
+                    },
+                    "iban": {
+                        "description": "IBAN de l'entreprise",
+                        "type": "string"
+                    },
+                    "header_text": {
+                        "description": "Texte d'en-tête personnalisé",
+                        "type": "string"
+                    },
+                    "footer_text": {
+                        "description": "Texte de pied de page personnalisé",
+                        "type": "string"
+                    },
+                    "created_by": {
+                        "description": "ID de l'utilisateur ayant créé l'entreprise",
+                        "type": "integer"
+                    },
+                    "updated_by": {
+                        "description": "ID de l'utilisateur ayant mis à jour l'entreprise",
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "description": "Date de création de l'entreprise",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Date de dernière mise à jour de l'entreprise",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Customer": {
+                "title": "Customer",
+                "description": "Modèle représentant un client",
+                "required": [
+                    "customer_number",
+                    "status_id",
+                    "created_by"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "ID unique du client",
+                        "type": "integer"
+                    },
+                    "customer_number": {
+                        "description": "Numéro de référence unique du client",
+                        "type": "string"
+                    },
+                    "civility_id": {
+                        "description": "ID de la civilité associée au client",
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "company_name": {
+                        "description": "Nom de la société du client",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "last_name": {
+                        "description": "Nom de famille du client",
+                        "type": "string"
+                    },
+                    "first_name": {
+                        "description": "Prénom du client",
+                        "type": "string"
+                    },
+                    "phone": {
+                        "description": "Numéro de téléphone du client",
+                        "type": "string"
+                    },
+                    "email": {
+                        "description": "Adresse email du client",
+                        "type": "string",
+                        "format": "email"
+                    },
+                    "address": {
+                        "description": "Adresse du client",
+                        "type": "string"
+                    },
+                    "postal_code": {
+                        "description": "Code postal du client",
+                        "type": "string"
+                    },
+                    "city": {
+                        "description": "Ville du client",
+                        "type": "string"
+                    },
+                    "country": {
+                        "description": "Pays du client",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "additional_info": {
+                        "description": "Informations supplémentaires concernant le client",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "status_id": {
+                        "description": "ID du statut associé au client",
+                        "type": "integer"
+                    },
+                    "user_id": {
+                        "description": "ID de l'utilisateur associé au client",
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "created_by": {
+                        "description": "ID de l'utilisateur qui a créé le client",
+                        "type": "integer"
+                    },
+                    "updated_by": {
+                        "description": "ID de l'utilisateur qui a mis à jour le client",
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "description": "Date et heure de création du client",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Date et heure de la dernière mise à jour du client",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "FormulaCustomOption": {
+                "title": "FormulaCustomOption",
+                "description": "Option personnalisée associée à une formule",
+                "required": [
+                    "name",
+                    "price"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "ID unique de l'option personnalisée",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "description": "Nom de l'option personnalisée",
+                        "type": "string"
+                    },
+                    "description": {
+                        "description": "Description de l'option personnalisée",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "price": {
+                        "description": "Prix de l'option personnalisée",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "active": {
+                        "description": "Indique si l'option personnalisée est active",
+                        "type": "boolean"
+                    },
+                    "created_at": {
+                        "description": "Date et heure de création de l'option personnalisée",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Date et heure de la dernière mise à jour de l'option personnalisée",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "FormulaDefaultElement": {
+                "title": "FormulaDefaultElement",
+                "description": "Élément par défaut associé à une formule",
+                "required": [
+                    "name"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "ID unique de l'élément par défaut",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "description": "Nom de l'élément par défaut",
+                        "type": "string"
+                    },
+                    "description": {
+                        "description": "Description de l'élément par défaut",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "description": "Date et heure de création de l'élément par défaut",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Date et heure de la dernière mise à jour de l'élément par défaut",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "FormulaDefault": {
+                "title": "FormulaDefault",
+                "description": "Association entre une formule et un élément par défaut",
+                "required": [
+                    "formula_id",
+                    "default_element_id"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "ID unique de l'association",
+                        "type": "integer"
+                    },
+                    "formula_id": {
+                        "description": "ID de la formule",
+                        "type": "integer"
+                    },
+                    "default_element_id": {
+                        "description": "ID de l'élément par défaut",
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "description": "Date et heure de création de l'association",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Date et heure de la dernière mise à jour de l'association",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "FormulaOption": {
+                "title": "FormulaOption",
+                "description": "Association entre une formule et une option personnalisée",
+                "required": [
+                    "formula_id",
+                    "option_id"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "ID unique de l'association",
+                        "type": "integer"
+                    },
+                    "formula_id": {
+                        "description": "ID de la formule",
+                        "type": "integer"
+                    },
+                    "option_id": {
+                        "description": "ID de l'option personnalisée",
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "description": "Date et heure de création de l'association",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Date et heure de la dernière mise à jour de l'association",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Formula": {
+                "title": "Formula",
+                "description": "Modèle représentant une formule",
+                "required": [
+                    "name",
+                    "base_price"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "ID unique de la formule",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "description": "Nom de la formule",
+                        "type": "string"
+                    },
+                    "description": {
+                        "description": "Description de la formule",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "base_price": {
+                        "description": "Prix de base de la formule",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "popular": {
+                        "description": "Indique si la formule est populaire",
+                        "type": "boolean"
+                    },
+                    "active": {
+                        "description": "Indique si la formule est active",
+                        "type": "boolean"
+                    },
+                    "defaultElements": {
+                        "description": "Liste des éléments par défaut associés à la formule",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FormulaDefaultElement"
+                        }
+                    },
+                    "customOptions": {
+                        "description": "Liste des options personnalisées associées à la formule",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/FormulaCustomOption"
+                        }
+                    },
+                    "created_at": {
+                        "description": "Date et heure de création de la formule",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Date et heure de la dernière mise à jour de la formule",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Proposal": {
+                "title": "Proposal",
+                "description": "Modèle représentant un devis",
+                "required": [
+                    "proposal_number",
+                    "formula",
+                    "amount",
+                    "issue_date",
+                    "expiry_date",
+                    "customer_id",
+                    "status_id",
+                    "created_by"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "ID unique du devis",
+                        "type": "integer"
+                    },
+                    "proposal_number": {
+                        "description": "Numéro unique du devis",
+                        "type": "string"
+                    },
+                    "formula": {
+                        "description": "Formule associée au devis",
+                        "type": "string"
+                    },
+                    "supplementalInfo": {
+                        "description": "Informations supplémentaires sur le devis",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "amount": {
+                        "description": "Montant du devis",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "issue_date": {
+                        "description": "Date d'émission du devis",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "expiry_date": {
+                        "description": "Date d'expiration du devis",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "customer_id": {
+                        "description": "ID du client associé au devis",
+                        "type": "integer"
+                    },
+                    "status_id": {
+                        "description": "ID du statut du devis",
+                        "type": "integer"
+                    },
+                    "created_by": {
+                        "description": "ID de l'utilisateur qui a créé le devis",
+                        "type": "integer"
+                    },
+                    "created_at": {
+                        "description": "Date et heure de création du devis",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Date et heure de la dernière mise à jour du devis",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Status": {
+                "title": "Status",
+                "description": "Modèle représentant un statut dans le système",
+                "required": [
+                    "label_status",
+                    "entity_type"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "ID unique du statut",
+                        "type": "integer"
+                    },
+                    "label_status": {
+                        "description": "Libellé du statut",
+                        "type": "string"
+                    },
+                    "entity_type": {
+                        "description": "Type d'entité à laquelle le statut est associé (par exemple, 'customer', 'order', etc.)",
+                        "type": "string"
+                    },
+                    "created_at": {
+                        "description": "Date et heure de création du statut",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Date et heure de la dernière mise à jour du statut",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            },
+            "Testimonial": {
+                "title": "Testimonial",
+                "description": "Modèle représentant un témoignage dans le système",
+                "required": [
+                    "name",
+                    "role",
+                    "comment",
+                    "rating"
+                ],
+                "properties": {
+                    "id": {
+                        "description": "ID unique du témoignage",
+                        "type": "integer"
+                    },
+                    "name": {
+                        "description": "Nom complet de l'auteur du témoignage",
+                        "type": "string"
+                    },
+                    "role": {
+                        "description": "Rôle ou poste de l'auteur du témoignage",
+                        "type": "string"
+                    },
+                    "comment": {
+                        "description": "Commentaire ou avis laissé par l'auteur du témoignage",
+                        "type": "string"
+                    },
+                    "image_url": {
+                        "description": "URL de l'image ou de l'avatar associé au témoignage",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "rating": {
+                        "description": "Note ou évaluation donnée par l'auteur du témoignage",
+                        "type": "number",
+                        "format": "float"
+                    },
+                    "source": {
+                        "description": "Source d'où provient le témoignage (par exemple, 'site web', 'réseaux sociaux')",
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "description": "Date et heure de création du témoignage",
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "updated_at": {
+                        "description": "Date et heure de la dernière mise à jour du témoignage",
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Authentification",
+            "description": "Authentification"
+        },
+        {
+            "name": "Civilities",
+            "description": "Civilities"
+        },
+        {
+            "name": "Company",
+            "description": "Company"
+        },
+        {
+            "name": "Contact",
+            "description": "Contact"
+        },
+        {
+            "name": "Customers",
+            "description": "Customers"
+        },
+        {
+            "name": "Formulas",
+            "description": "Formulas"
+        },
+        {
+            "name": "Proposals",
+            "description": "Proposals"
+        },
+        {
+            "name": "Proposals-Request",
+            "description": "Proposals-Request"
+        },
+        {
+            "name": "Statuses",
+            "description": "Statuses"
+        },
+        {
+            "name": "Testimonials",
+            "description": "Testimonials"
+        },
+        {
+            "name": "Utilisateur",
+            "description": "Utilisateur"
+        }
+    ]
+}

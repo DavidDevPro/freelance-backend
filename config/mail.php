@@ -15,6 +15,17 @@ return [
     */
 
     'default' => env('MAIL_MAILER', 'log'),
+    /*
+    |--------------------------------------------------------------------------
+    | Admin Email
+    |--------------------------------------------------------------------------
+    |
+    | This is the email address where notifications and other important
+    | messages will be sent.
+    |
+    */
+
+    'admin_email' => env('ADMIN_EMAIL', 'contact@davidwebprojects.fr'),
 
     /*
     |--------------------------------------------------------------------------
