@@ -13,11 +13,11 @@ class FormulaCustomOptionSeeder extends Seeder
     public function run(): void
     {
         $options = [
-            ['id' => 1, 'name' => 'Ajout de pages supplémentaires', 'description' => '', 'price' => null],
-            ['id' => 2, 'name' => 'Référencement Local', 'description' => '', 'price' => null],
-            ['id' => 3, 'name' => 'Google My Business', 'description' => '', 'price' => null],
-            ['id' => 4, 'name' => 'Suivi Analytics', 'description' => '', 'price' => null],
-            ['id' => 5, 'name' => 'Révision des contenus', 'description' => 'tous les 6 mois.', 'price' => null],
+            ['id' => 1, 'name' => 'Ajout de pages supplémentaires', 'value' => '', 'price' => null],
+            ['id' => 2, 'name' => 'Référencement Local', 'value' => '', 'price' => null],
+            ['id' => 3, 'name' => 'Google My Business', 'value' => '', 'price' => null],
+            ['id' => 4, 'name' => 'Suivi Analytics', 'value' => '', 'price' => null],
+            ['id' => 5, 'name' => 'Révision des contenus', 'value' => 'tous les 6 mois.', 'price' => null],
         ];
 
         foreach ($options as $option) {

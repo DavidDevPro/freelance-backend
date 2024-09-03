@@ -11,10 +11,10 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('formula_default_elements', function (Blueprint $table) {
-            $table->id(); // Clé primaire auto-incrémentée standard Laravel
-            $table->string('name'); // Nom de l'élément par défaut
-            $table->text('description')->nullable(); // Description de l'élément par défaut
-            $table->timestamps(); // Ajoute les colonnes created_at et updated_at
+            $table->id(); 
+            $table->string('name'); 
+            $table->text('value')->nullable(); // Renommé 'description' en 'value'
+            $table->timestamps();
         });
     }
 

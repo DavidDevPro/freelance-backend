@@ -2,20 +2,21 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class FormulaDefaultElement extends Model
 {
-    use HasFactory;
+    protected $table = 'formula_default_elements';
 
-    // Définir les champs remplissables
-    protected $fillable = ['name', 'description'];
-
-    // Relation avec Formula via la table pivot 'formula_defaults'
-    public function formulas()
+    public function description()
     {
-        return $this->belongsToMany(Formula::class, 'formula_defaults', 'default_element_id', 'formula_id')
-                    ->withTimestamps();
+        return $this->hasOneThrough(
+            FormulaDescription::class,
+            FormulaDefault::class,
+            'default_element_id',  // Foreign key on formula_defaults table
+            'id',  // Foreign key on formula_descriptions table
+            'id',  // Local key on formula_default_elements table
+            'description_id'  // Local key on formula_defaults table
+        );
     }
 }

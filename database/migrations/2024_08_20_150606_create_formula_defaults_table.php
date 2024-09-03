@@ -11,10 +11,11 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('formula_defaults', function (Blueprint $table) {
-            $table->id(); // Clé primaire auto-incrémentée standard Laravel
-            $table->foreignId('default_element_id')->constrained('formula_default_elements')->onDelete('cascade'); // Clé étrangère vers 'formula_default_elements'
-            $table->foreignId('formula_id')->constrained('formulas')->onDelete('cascade'); // Clé étrangère vers 'formulas'
-            $table->timestamps(); // Ajoute les colonnes created_at et updated_at
+            $table->id(); 
+            $table->foreignId('default_element_id')->constrained('formula_default_elements')->onDelete('cascade'); 
+            $table->foreignId('formula_id')->constrained('formulas')->onDelete('cascade'); 
+            $table->foreignId('description_id')->nullable()->constrained('formula_descriptions')->onDelete('cascade'); // Ajout de la clé étrangère vers 'formula_descriptions'
+            $table->timestamps(); 
         });
     }
 

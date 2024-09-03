@@ -10,7 +10,7 @@ class FormulaOption extends Model
     use HasFactory;
 
     // Les attributs qui sont assignables en masse.
-    protected $fillable = ['formula_id', 'option_id'];
+    protected $fillable = ['formula_id', 'option_id', 'description_id']; // Ajout de 'description_id'
 
     // Relation avec le modèle Formula
     public function formula()
@@ -22,5 +22,11 @@ class FormulaOption extends Model
     public function customOption()
     {
         return $this->belongsTo(FormulaCustomOption::class, 'option_id', 'id');
+    }
+
+    // Relation avec le modèle FormulaDescription
+    public function description()
+    {
+        return $this->belongsTo(FormulaDescription::class, 'description_id', 'id'); // Ajout de la relation avec FormulaDescription
     }
 }

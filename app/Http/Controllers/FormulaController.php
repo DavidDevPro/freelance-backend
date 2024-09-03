@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Formula;
+use App\Models\FormulaDefault;
+use App\Models\FormulaDescription;
 
 class FormulaController extends Controller
 {
@@ -25,7 +27,7 @@ class FormulaController extends Controller
      */
     public function index()
     {
-        $formulas = Formula::with(['defaultElements', 'customOptions'])->get();
+        $formulas = Formula::with(['defaultElements.description', 'customOptions.description'])->get();
 
         $demoPackages = $formulas->map(function ($formula) {
             return $this->formatFormula($formula);
@@ -95,7 +97,7 @@ class FormulaController extends Controller
      */
     public function show($id)
     {
-        $formula = Formula::with(['defaultElements', 'customOptions'])->findOrFail($id);
+        $formula = Formula::with(['defaultElements.description', 'customOptions.description'])->findOrFail($id);
 
         $formattedFormula = $this->formatFormula($formula);
 
@@ -222,22 +224,46 @@ class FormulaController extends Controller
      */
     protected function formatFormula(Formula $formula)
     {
-        $groupedFeatures = $formula->defaultElements->groupBy('name')->map(function ($items, $name) {
-            $descriptions = $items->pluck('description')->filter()->implode(', ');
-            return $name . ($descriptions ? ' : ' . $descriptions : '');
-        });
+        // Initialiser un tableau pour stocker les features groupés
+        $groupedFeatures = [];
+
+        foreach ($formula->defaultElements as $element) {
+            $name = $element->name;
+            $value = $element->value;
+            $description = optional($element->description)->description_text;
+
+            if (isset($groupedFeatures[$name])) {
+                // Cumuler les valeurs et conserver la dernière description
+                $groupedFeatures[$name]['value'] .= ($groupedFeatures[$name]['value'] !== '' ? ', ' : '') . $value;
+                $groupedFeatures[$name]['description'] = $description; // Toujours mettre à jour la description pour garder la dernière
+            } else {
+                // Ajouter un nouvel élément
+                $groupedFeatures[$name] = [
+                    'name' => $name,
+                    'value' => $value,
+                    'description' => $description,
+                ];
+            }
+        }
+
+        // Convertir le tableau associatif en tableau indexé
+        $features = array_values($groupedFeatures);
+
+        // Formater les options
+        $options = $formula->customOptions->map(function ($option) {
+            return [
+                'name' => $option->name,
+                'value' => $option->value,
+                'description' => optional($option->description)->description_text,
+            ];
+        })->toArray();
 
         return [
             'id' => 'package_' . $formula->id,
             'name' => $formula->name,
             'description' => $formula->description,
-            'features' => $groupedFeatures->values()->toArray(),
-            'options' => $formula->customOptions->map(function ($option) {
-                return [
-                    'name' => $option->name,
-                    'description' => $option->description,
-                ];
-            })->toArray(),
+            'features' => $features,
+            'options' => $options,
             'isMostPopular' => $formula->popular,
         ];
     }
