@@ -46,9 +46,10 @@ class FormulaDefaultSeeder extends Seeder
             ['id' => 19, 'default_element_id' => 15, 'formula_id' => 2, 'description_id' =>12],
             ['id' => 20, 'default_element_id' => 15, 'formula_id' => 3, 'description_id' =>20],
             ['id' => 21, 'default_element_id' => 16, 'formula_id' => 2, 'description_id' =>13],
-            ['id' => 22, 'default_element_id' => 17, 'formula_id' => 2, 'description_id' =>14],
-            ['id' => 23, 'default_element_id' => 18, 'formula_id' => 3, 'description_id' =>21],
-            ['id' => 24, 'default_element_id' => 19, 'formula_id' => 3, 'description_id' =>22],
+            ['id' => 22, 'default_element_id' => 16, 'formula_id' => 3, 'description_id' =>13],
+            ['id' => 23, 'default_element_id' => 17, 'formula_id' => 3, 'description_id' =>21],
+            ['id' => 24, 'default_element_id' => 18, 'formula_id' => 2, 'description_id' =>14],
+            ['id' => 25, 'default_element_id' => 19, 'formula_id' => 3, 'description_id' =>22],
         ];
 
         foreach ($formulaDefaults as $formulaDefault) {

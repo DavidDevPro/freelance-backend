@@ -28,10 +28,10 @@ class FormulaDefaultElementSeeder extends Seeder
             ['id' => 13, 'name' => 'Cycle(s) de révision', 'value' => 'illimité'],
             ['id' => 14, 'name' => 'Support par', 'value' => 'email'],
             ['id' => 15, 'name' => 'Support par', 'value' => 'téléphone'],
-            ['id' => 16, 'name' => 'Accès administrateur pour gestion des contenus (ajout, modification, suppression)', 'value' => ''],
-            ['id' => 17, 'name' => 'Intégration API', 'value' => ''],
-            ['id' => 18, 'name' => 'Accès Clients pour gestion des devis, factures, etc.', 'value' => ''],
-            ['id' => 19, 'name' => 'Intégration API avancée et performante', 'value' => ''],
+            ['id' => 16, 'name' => 'Accès Administrateur pour gestion des contenus (ajout, modification, suppression)', 'value' => ''],
+            ['id' => 17, 'name' => 'Accès Clients pour gestion des devis, factures, etc.', 'value' => ''],
+            ['id' => 18, 'name' => 'Intégration API', 'value' => 'basique'],            
+            ['id' => 19, 'name' => 'Intégration API', 'value' => 'avancée et performante'],
         ];
 
         foreach ($defaultElements as $element) {
