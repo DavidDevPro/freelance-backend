@@ -20,9 +20,13 @@ return [
     'allowed_methods' => ['*'], // Autoriser toutes les méthodes HTTP
 
     'allowed_origins' => [
+        'https://portfolio.davidwebprojects.fr',
         'https://davidwebprojects.fr',
         'https://www.davidwebprojects.fr',
-        'http://localhost:5173'
+        'https://test.davidwebprojects.fr',
+        'http://localhost:5173',
+
+
 
     ], // Ajouter les domaines autorisés, y compris les adresses locales
 

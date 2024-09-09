@@ -19,12 +19,12 @@ class DatabaseSeeder extends Seeder
             FormulaDescriptionsSeeder::class,
             FormulaCustomOptionSeeder::class,
             FormulaDefaultElementSeeder::class,
-            FormulaDefaultSeeder::class,            
+            FormulaDefaultSeeder::class,
             FormulaOptionsSeeder::class,
             TestimonialSeeder::class,
             CompanySeeder::class,
             StatusSeeder::class,
-            CustomerSeeder::class,
+
         ]);
     }
 }

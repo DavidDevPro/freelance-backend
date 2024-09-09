@@ -12,7 +12,7 @@ class ProposalCustomOption extends Model
     protected $fillable = [
         'proposal_id',
         'name',
-        'description',
+        'value',
         'price',
     ];
 

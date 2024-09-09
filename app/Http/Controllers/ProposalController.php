@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Formula;
 use App\Models\Proposal;
 use App\Models\Status;
 use App\Services\UniqueIdentifierService;
@@ -180,9 +181,18 @@ class ProposalController extends Controller
      */
     public function createProposal(array $validatedData, $customer, $user)
     {
+        // Chercher l'ID de la formule correspondante
+        $formula = Formula::where('name', $validatedData['formule'])->first();
+    
+        // Vérifier si la formule a été trouvée
+        if (!$formula) {
+            throw new \Exception('La formule spécifiée est introuvable.');
+        }
+    
+        // Créer la proposition
         return Proposal::create([
             'proposal_number' => UniqueIdentifierService::generateProposalNumber($customer->customer_number),
-            'formula' => $validatedData['formule'],
+            'formula_id' => $formula->id, // Associer l'ID de la formule trouvée
             'supplementalInfo' => $validatedData['supplementalInfo'] ?? null,
             'amount' => 0,
             'issue_date' => now(),

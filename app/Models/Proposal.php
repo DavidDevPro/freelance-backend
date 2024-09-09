@@ -16,7 +16,7 @@ class Proposal extends Model
         'parent_proposal_id',
         'description',
         'supplementalInfo',
-        'formula',
+        'formula_id', // Mise à jour du champ formula à formula_id
         'options_included',
         'additional_options',
         'services',
@@ -34,6 +34,12 @@ class Proposal extends Model
     public function customer()
     {
         return $this->belongsTo(Customer::class);
+    }
+
+    // Relation avec la formule
+    public function formula()
+    {
+        return $this->belongsTo(Formula::class);
     }
 
     // Si vous avez une relation avec `ProposalCustomOption`

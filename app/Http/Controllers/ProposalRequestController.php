@@ -206,7 +206,7 @@ class ProposalRequestController extends Controller
             ProposalDefaultElement::create([
                 'proposal_id' => $proposal->id,
                 'name' => $element->name,
-                'description' => $element->description,
+                'value' => $element->value,
             ]);
         }
     }
@@ -223,10 +223,11 @@ class ProposalRequestController extends Controller
                 if ($enabled) {
                     $option = FormulaCustomOption::where('name', $optionName)->first();
                     if ($option) {
-                        $description = $option->description;
+                        // Utiliser 'value' au lieu de 'description'
+                        $value = $option->value;
 
                         if ($optionName === "Ajout de pages supplémentaires" && !empty($validatedData['pageCount'])) {
-                            $description = $validatedData['pageCount'] . ' pages supplémentaires';
+                            $value = $validatedData['pageCount'];
                             $selectedOptions[] = $option->name . ' (+' . $validatedData['pageCount'] . ' pages)';
                         } else {
                             $selectedOptions[] = $option->name;
@@ -235,7 +236,7 @@ class ProposalRequestController extends Controller
                         ProposalCustomOption::create([
                             'proposal_id' => $proposal->id,
                             'name' => $option->name,
-                            'description' => $description,
+                            'value' => $value, // Remplacer 'description' par 'value'
                             'price' => $option->price,
                         ]);
                     }

@@ -14,7 +14,7 @@ return new class extends Migration {
             $table->id(); // Clé primaire
             $table->foreignId('proposal_id')->constrained('proposals')->onDelete('cascade');
             $table->string('name');
-            $table->text('description')->nullable();
+            $table->text('value')->nullable();
             $table->timestamps(); // Ajoute les colonnes created_at et updated_at
         });
     }

@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->foreignId('parent_proposal_id')->nullable()->constrained('proposals')->onDelete('set null');
             $table->text('description')->nullable();
             $table->text('supplementalInfo')->nullable();
-            $table->string('formula')->nullable();
+            $table->foreignId('formula_id')->nullable()->constrained('formulas')->onDelete('set null');
             $table->decimal('amount', 10, 2);
             $table->date('issue_date');
             $table->date('expiry_date');
@@ -48,4 +48,3 @@ return new class extends Migration {
         Schema::dropIfExists('proposals');
     }
 };
-

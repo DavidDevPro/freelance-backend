@@ -353,6 +353,7 @@ class CustomerController extends Controller
                     'country' => $validatedData['country'] ?? null,
                     'status_id' => $status->id,
                     'user_id' => $user->id,
+                    'created_by' => $user->id,
                 ]
             );
 
@@ -374,7 +375,16 @@ class CustomerController extends Controller
      */
     protected function getOrCreateCivility($civilityLabel)
     {
-        return $civilityLabel ? Civility::firstOrCreate(['longLabel' => $civilityLabel]) : null;
+        // Vérifier si le label est fourni
+        if (!$civilityLabel) {
+            return null; // Aucun label fourni, donc aucune civilité à récupérer
+        }
+    
+        // Chercher une civilité existante basée sur le longLabel fourni par le formulaire
+        $civility = Civility::where('longLabel', $civilityLabel)->first();
+    
+        // Retourner la civilité trouvée ou null si aucune n'existe
+        return $civility;
     }
 
     /**
