@@ -20,7 +20,7 @@ class CreateTestimonialsTable extends Migration
             $table->string('role');
             $table->text('comment');
             $table->decimal('rating', 2, 1); // Note sur 2 chiffres avant la virgule et 1 après
-            $table->string('source')->nullable(); // Ajouter la colonne source
+            $table->string('source')->default('mon site');
             $table->timestamps(); // Colonnes created_at et updated_at
         });
     }

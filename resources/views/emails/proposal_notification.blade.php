@@ -4,7 +4,7 @@
 @section('title', 'Nouvelle demande de devis reçue')
 
 @section('content')
-<p>Bonjour Fabrice,</p>
+<p>Bonjour David,</p>
 
 <p style="margin-bottom: 20px;">
     Vous avez reçu une nouvelle demande de devis. Voici les détails de la demande :
@@ -33,13 +33,13 @@
         </td>
         <td style="padding: 8px; border: 1px solid #dddddd;">
             @if(!empty($options))
-                <ul>
-                    @foreach($options as $option)
-                        <li>{{$option}}</li>
-                    @endforeach
-                </ul>
+            <ul>
+                @foreach($options as $option)
+                <li>{{$option}}</li>
+                @endforeach
+            </ul>
             @else
-                Aucune option supplémentaire sélectionnée.
+            Aucune option supplémentaire sélectionnée.
             @endif
         </td>
     </tr>

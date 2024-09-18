@@ -4,7 +4,7 @@
 @section('title', 'Nouvelle demande de contact reçue')
 
 @section('content')
-<p>Bonjour Fabrice,</p>
+<p>Bonjour David,</p>
 
 <p style="margin-bottom: 20px;">
     Vous avez reçu une nouvelle demande de contact depuis le site <strong>{{$namewebsite}}</strong>. Voici les détails de la demande :

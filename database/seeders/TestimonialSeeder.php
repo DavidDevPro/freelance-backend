@@ -20,7 +20,7 @@ class TestimonialSeeder extends Seeder
                 'image_url' => 'anJxjUygkykmo090ARWMzN1EAhLpadHoSbBCmCF9.png',
                 // 'image_url' => Str::uuid() . '.png',
                 'rating' => 5.0,
-                'source' => '',
+                'source' => 'mon site',
             ],
             [
                 'name' => 'Fabrice Magnan de Bellevue',
@@ -29,7 +29,7 @@ class TestimonialSeeder extends Seeder
                 'image_url' => 'IndOoQPZ6FfvsFO1DTHvgAa1BXV8SA6tMNpd3prw.jpg',
                 // 'image_url' => Str::uuid() . '.png',
                 'rating' => 5.0,
-                'source' => '',
+                'source' => 'mon site',
             ],
         ];
 
