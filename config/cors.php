@@ -24,7 +24,7 @@ return [
         'https://davidwebprojects.fr',
         'https://www.davidwebprojects.fr',
         'https://test.davidwebprojects.fr',
-        'http://localhost:5173',
+        'http://localhost:3000',
 
 
 

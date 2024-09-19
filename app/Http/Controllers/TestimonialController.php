@@ -73,10 +73,10 @@ class TestimonialController extends Controller
     {
         // Valider la requête
         $validatedData = $this->validateTestimonial($request);
-    
+
         // Gérer l'avatar
         $avatarPath = $this->handleAvatarUpload($request);
-    
+
         // S'assurer que la première lettre de firstName est en majuscule
         $validatedData['firstName'] = ucfirst(strtolower($validatedData['firstName']));
 
@@ -85,10 +85,10 @@ class TestimonialController extends Controller
 
         // Créer le témoignage
         $testimonial = $this->createTestimonial($validatedData, $avatarPath, $request->input('rating', 5.0));
-    
+
         // Envoyer les emails de confirmation et de notification
         $this->sendEmails($validatedData);
-    
+
         return response()->json(['message' => 'Témoignage créé avec succès', 'testimonial' => $testimonial], 201);
     }
 
@@ -292,14 +292,21 @@ class TestimonialController extends Controller
      */
     protected function createTestimonial(array $validatedData, $avatarPath, $rating)
     {
-        return Testimonial::create([
+        $testimonialData = [
             'name' => trim($validatedData['firstName'] . ' ' . $validatedData['lastName']),
             'role' => $validatedData['role'],
             'comment' => $validatedData['comment'],
             'image_url' => $avatarPath,
             'rating' => $rating,
-            'source' => $validatedData['source'] ?? null
-        ]);
+        ];
+
+        // N'inclure 'source' que si elle est définie et non vide
+        if (!empty($validatedData['source'])) {
+            $testimonialData['source'] = $validatedData['source'];
+        }
+
+        // Insérer les données dans la table testimonials
+        return Testimonial::create($testimonialData);
     }
 
     /**
